@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 
 class NeuBox extends StatelessWidget {
   final child;
-  const NeuBox({Key? key, required this.child}) : super(key: key);
+  final bool isDark;
+  const NeuBox({
+    Key? key,
+    required this.child,
+    required this.isDark,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

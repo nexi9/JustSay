@@ -1,3 +1,4 @@
+import 'package:alan_voice/alan_voice.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:music_ai/neubox.dart';
@@ -27,11 +28,55 @@ class _HomepageState extends State<Homepage> {
     // TODO: implement initState
     super.initState();
     initplayer();
+    setUpAlan();
+  }
+
+  void setUpAlan() {
+    AlanVoice.addButton(
+        "e14bac753c880a2161b028098d8a1d642e956eca572e1d8b807a3e2338fdd0dc/stage",
+        buttonAlign: AlanVoice.BUTTON_ALIGN_LEFT);
+    AlanVoice.callbacks.add((command) => handleCommand(command.data));
+  }
+
+  playMusic() async {
+    if (isplaying) {
+      await player.pause();
+      setState(() {
+        isplaying = false;
+      });
+    } else {
+      await player.resume();
+      setState(() {
+        isplaying = true;
+      });
+
+      player.onPositionChanged.listen(
+        (position) {
+          setState(() {
+            value = position.inSeconds.toDouble();
+          });
+        },
+      );
+      setState(() async {
+        duration = await player.getDuration();
+      });
+    }
+  }
+
+  handleCommand(Map<String, dynamic> response) {
+    switch (response["command"]) {
+      case "play":
+        playMusic();
+
+        break;
+      default:
+    }
   }
 
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.grey[300],
+        backgroundColor:
+            dark ? Color.fromARGB(255, 53, 53, 53) : Colors.grey[300],
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -45,11 +90,11 @@ class _HomepageState extends State<Homepage> {
                       SizedBox(
                         height: 60,
                         width: 60,
-                        child: NeuBox(child: Icon(Icons.menu)),
+                        child: NeuBox(
+                          child: Icon(Icons.menu),
+                          isDark: dark,
+                        ),
                       ),
-                      // SizedBox(
-                      //   width: 90,
-                      // ),
                       "J U S T   S A Y ".text.xl2.bold.make().shimmer(
                           primaryColor: Color.fromARGB(255, 77, 76, 76)),
                       InkWell(
@@ -66,6 +111,7 @@ class _HomepageState extends State<Homepage> {
                           height: 60,
                           width: 60,
                           child: NeuBox(
+                              isDark: dark,
                               child: Icon(
                                   dark ? Icons.dark_mode : Icons.light_mode)),
                         ),
@@ -79,41 +125,45 @@ class _HomepageState extends State<Homepage> {
                 SizedBox(
                     width: 350,
                     child: NeuBox(
+                        isDark: dark,
                         child: Column(
-                      children: [
-                        ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.asset("assets/cover.jpg")),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.asset("assets/cover.jpg")),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  "SUZUME NO TOJIMARI "
-                                      .text
-                                      .xl
-                                      .extraBlack
-                                      .make(),
-                                  "Tazzy".text.make()
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      "SUZUME NO TOJIMARI "
+                                          .text
+                                          .xl
+                                          .extraBlack
+                                          .make(),
+                                      "Tazzy".text.make()
+                                    ],
+                                  ),
+                                  Icon(
+                                    Icons.favorite,
+                                    color: Colors.red,
+                                  )
                                 ],
                               ),
-                              Icon(
-                                Icons.favorite,
-                                color: Colors.red,
-                              )
-                            ],
-                          ),
-                        )
-                      ],
-                    ))),
+                            )
+                          ],
+                        ))),
                 SizedBox(height: 20),
                 NeuBox(
+                  isDark: dark,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -169,6 +219,7 @@ class _HomepageState extends State<Homepage> {
                     }
                   },
                   child: NeuBox(
+                    isDark: dark,
                     child: Icon(
                       isplaying ? Icons.pause : Icons.play_arrow,
                     ),
